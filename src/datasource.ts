@@ -1,5 +1,4 @@
 
-
 import {
   DataQueryRequest,
   DataQueryResponse,
@@ -161,39 +160,37 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 		console.log(default_json.sparql11protocol.port);
 		console.log(default_json.sparql11seprotocol.availableProtocols.ws.port);
 
-    	// [0] DATA will contain the results of the query after the query is finished
+    	// QUERY
 		const promises = options.targets.map((query) =>
 			this.doRequest(query).then((response) => {
-				var json_response=JSON.parse(response)
+				var json_response=JSON.parse(response);
 
-				//TENTATIVO FIELDS DINAMICO
-				json_response.forEach((element: any) => {
-					Object.keys(element).forEach(key => {
-						console.log(key, element[key]);
-					  });
-				});
-				let key_array: string[]=[];
-				json_response.forEach((element: any) => {
-					Object.keys(element).forEach(key => {
-						key_array.push(key);
-					  });
-				});
-				/*public interface fields_array = {
-					name: string;
-					type: enum;
-				}
-				for (let i=0; i<key_array.length; i++){
-					fields_array='{ name:'+key_array[i]+', type: FieldType.string },';
-					console.log(fields_array);
-				}*/
+				var dynamic_fields=JSON.parse("[]");
+				var i=0;
+				var single_field={};
+
+				var element_json= json_response[0]; 
+				console.log("ELEMENTO JSON"+ element_json);
+				Object.keys(element_json).forEach(key => {
+					single_field={
+							name: key,
+							type: FieldType.string,
+						}
+					console.log("singolo fiels"+ single_field);
+					dynamic_fields[i]=single_field;
+					i++;
+					});	  
+					
+				
+				console.log("tutto fiels"+ dynamic_fields);
 				const frame = new MutableDataFrame({
 					refId: query.refId,
-					fields: [
-				  { name: 's', type: FieldType.string },
-				  { name: 'p', type: FieldType.string },
-				  { name: 'o', type: FieldType.string },
-					],
-					
+					/*fields: [
+				  		{ name: 's', type: FieldType.string },
+				  		{ name: 'p', type: FieldType.string },
+				  		{ name: 'o', type: FieldType.string },
+					],*/
+					fields: dynamic_fields,
 				  });
 				
 				//ADD FRAME DINAMICO
